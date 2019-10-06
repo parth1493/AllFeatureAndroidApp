@@ -1,4 +1,4 @@
-package com.parth.allfeatureandroidapp;
+package com.parth.allfeatureandroidapp.db.entity;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey;
 @Entity(tableName ="contacts")
 public class Contact {
 
-    @PrimaryKey
+    @ColumnInfo(name ="contact_id")
+    @PrimaryKey(autoGenerate = true)
     private int id;
 
     @ColumnInfo(name ="contact_name")
@@ -24,5 +25,25 @@ public class Contact {
 
     public int getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
