@@ -1,17 +1,23 @@
 package com.parth.allfeatureandroidapp;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class MainActivityViewModel extends ViewModel {
 
-    private int counter =0 ;
+    private MutableLiveData<Integer> mutableLiveDataCount;
+    private int counter ;
 
-    public int intiCouter() {
-        return counter;
+    public MutableLiveData<Integer> intiCouter() {
+        if(mutableLiveDataCount == null){
+            mutableLiveDataCount = new MutableLiveData<>();
+        }
+        mutableLiveDataCount.setValue(counter);
+        return mutableLiveDataCount;
     }
 
-    public int couterAdd() {
+    public void couterAdd() {
         counter++;
-        return counter;
+        mutableLiveDataCount.setValue(counter);
     }
 }

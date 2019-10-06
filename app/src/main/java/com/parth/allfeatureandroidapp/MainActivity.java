@@ -6,6 +6,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.view.View;
@@ -32,11 +34,19 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                counterView.setText("count is "+mainActivityViewModel.couterAdd());
+                mainActivityViewModel.couterAdd();
             }
         });
 
-        counterView.setText("count is "+mainActivityViewModel.intiCouter());
+        final LiveData<Integer> count = mainActivityViewModel.intiCouter();
+
+        count.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+            counterView.setText("count is "+integer);
+            }
+        });
+
     }
 
     @Override
