@@ -1,6 +1,7 @@
 package com.parth.allfeatureandroidapp;
 
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -48,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view_contacts);
 
-        myAppDatabase = Room.databaseBuilder(getApplicationContext(),MyAppDatabase.class,"contactDB").allowMainThreadQueries().build();
+        myAppDatabase = Room.databaseBuilder(getApplicationContext(),MyAppDatabase.class,"contactDB").build();
 
-        contactArrayList.addAll(myAppDatabase.myDao().getContacts());
+        new GetAllContactsAsyncTask().execute();
 
         contactsAdapter = new ContactsAdapter(this, contactArrayList, MainActivity.this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -163,8 +164,7 @@ public class MainActivity extends AppCompatActivity {
     private void deleteContact(Contact contact, int position) {
 
         contactArrayList.remove(position);
-        myAppDatabase.myDao().deteteContact(contact);
-        contactsAdapter.notifyDataSetChanged();
+        new DeleteContactAsyncTask().execute(contact);
     }
 
     private void updateContact(String name, String email, int position) {
@@ -174,29 +174,81 @@ public class MainActivity extends AppCompatActivity {
         contact.setName(name);
         contact.setEmail(email);
 
-        myAppDatabase.myDao().updateContact(contact);
+        new UpdateContactAsyncTask().execute(contact);
 
         contactArrayList.set(position, contact);
-
-        contactsAdapter.notifyDataSetChanged();
-
 
     }
 
     private void createContact(String name, String email) {
-
-
-    long id = myAppDatabase.myDao().addContact(new Contact(0,name,email));
-
-    Contact contact = myAppDatabase.myDao().getContact(id);
-
-    if(contact != null){
-
-        contactArrayList.add(0,contact);
-        contactsAdapter.notifyDataSetChanged();
+        new CreateContactAsyncTask().execute(new Contact(0,name,email));
     }
 
+    private class GetAllContactsAsyncTask extends AsyncTask<Void,Void,Void>{
 
+        @Override
+        protected Void doInBackground(Void... voids) {
 
+            contactArrayList.addAll(myAppDatabase.myDao().getContacts());
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            contactsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private class CreateContactAsyncTask extends AsyncTask<Contact,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Contact... contacts) {
+
+            long id = myAppDatabase.myDao().addContact(contacts[0]);
+
+            Contact contact = myAppDatabase.myDao().getContact(id);
+
+            if(contact != null){
+                contactArrayList.add(0,contact);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            contactsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private class UpdateContactAsyncTask extends AsyncTask<Contact,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Contact... contacts) {
+            myAppDatabase.myDao().updateContact(contacts[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            contactsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private class DeleteContactAsyncTask extends AsyncTask<Contact,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Contact... contacts) {
+            myAppDatabase.myDao().deteteContact(contacts[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            contactsAdapter.notifyDataSetChanged();
+        }
     }
 }
