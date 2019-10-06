@@ -9,6 +9,7 @@ import com.parth.allfeatureandroidapp.adapter.ContactsAdapter;
 import com.parth.allfeatureandroidapp.db.MyAppDatabase;
 import com.parth.allfeatureandroidapp.db.entity.Contact;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,8 +20,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -33,6 +37,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private ContactsAdapter contactsAdapter;
     private ArrayList<Contact> contactArrayList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -49,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view_contacts);
 
-        myAppDatabase = Room.databaseBuilder(getApplicationContext(),MyAppDatabase.class,"contactDB").build();
+        myAppDatabase = Room.databaseBuilder(getApplicationContext(),MyAppDatabase.class,"contactDB").addCallback(callback).build();
 
         new GetAllContactsAsyncTask().execute();
 
@@ -194,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPreExecute() {
+        protected void onPostExecute(Void aVoid) {
             super.onPreExecute();
             contactsAdapter.notifyDataSetChanged();
         }
@@ -251,4 +256,18 @@ public class MainActivity extends AppCompatActivity {
             contactsAdapter.notifyDataSetChanged();
         }
     }
+
+    RoomDatabase.Callback callback = new RoomDatabase.Callback() {
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            super.onCreate(db);
+            Log.i(TAG, "onCreate: ");
+        }
+
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            Log.i(TAG, "onOpen: ");
+        }
+    };
 }
